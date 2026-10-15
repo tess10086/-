@@ -16,3 +16,6 @@ results/
 # 系统
 .DS_Store
 Thumbs.db
+
+# 本地一次性发布脚本（不需要进仓库）
+push-to-github.cmd
