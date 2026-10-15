@@ -71,7 +71,7 @@ def _fmt(v):
 with st.sidebar:
     st.header("⚙️ 设置")
     csv_path = st.text_input("CSV 文件路径", value="01_credit_default.csv")
-    if st.button("重新加载数据", use_container_width=True):
+    if st.button("重新加载数据", width="stretch"):
         st.cache_data.clear()
         st.session_state.clear()
         st.rerun()
@@ -131,7 +131,7 @@ def page_overview(df: pd.DataFrame) -> None:
             "违约率": info["default_rate"], "缺失值个数": info["missing_total"],
             "record_id重复数": info["record_id_dup"],
         })
-    st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+    st.dataframe(pd.DataFrame(rows), width="stretch", hide_index=True)
 
     # 图1：授信额度分布
     st.subheader("授信额度分布")
@@ -140,7 +140,7 @@ def page_overview(df: pd.DataFrame) -> None:
         title=f"授信额度分布（全部 n={total}）",
         labels={cp.COL_LIMIT_BAL: "授信额度（新台币）", cp.SPLIT_COL: "划分"})
     fig.update_layout(xaxis_title="授信额度", yaxis_title="客户数")
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     # 图2：年龄分布
     st.subheader("年龄分布")
@@ -149,7 +149,7 @@ def page_overview(df: pd.DataFrame) -> None:
         title=f"年龄分布（全部 n={total}）",
         labels={cp.COL_AGE: "年龄", cp.SPLIT_COL: "划分"})
     fig.update_layout(xaxis_title="年龄", yaxis_title="客户数")
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     # 图3：最近月还款状态分布
     st.subheader("最近月还款状态 PAY_0 取值分布")
@@ -158,7 +158,7 @@ def page_overview(df: pd.DataFrame) -> None:
         pay_dist, x="取值", y="客户数",
         title=f"最近月还款状态取值分布（全部 n={total}）")
     fig.update_layout(xaxis_title="还款状态取值", yaxis_title="客户数")
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     # 图4：额度使用率分箱 vs 违约率
     st.subheader("额度使用率分箱 vs 违约率")
@@ -172,12 +172,12 @@ def page_overview(df: pd.DataFrame) -> None:
         util_rate, x="组值", y="违约率",
         title=f"额度使用率分箱 vs 违约率（全部 n={total}）")
     fig.update_layout(xaxis_title="额度使用率区间", yaxis_title="违约率")
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     # 还款状态编码含义
     st.subheader("还款状态编码含义")
     st.markdown("**负值是有效编码，不作为缺失值处理。**")
-    st.dataframe(cp.describe_pay_codes(df), use_container_width=True, hide_index=True)
+    st.dataframe(cp.describe_pay_codes(df), width="stretch", hide_index=True)
 
     st.info("数据无逐笔申请日期，划分为分层随机划分，结论不可外推到未来时段。")
 
@@ -203,7 +203,7 @@ def page_model_compare(df: pd.DataFrame) -> None:
         if mc_valid is not None:
             show = mc_valid.copy()
             show["model"] = show["model"].map(lambda x: MODEL_LABELS_EN.get(x, x))
-            st.dataframe(show, use_container_width=True, hide_index=True)
+            st.dataframe(show, width="stretch", hide_index=True)
             st.caption("来源：artifacts/model_comparison.csv（split=valid，由 C 同学计算）")
         tc = ai.load_c_threshold_curve(c_thr.get("model_name") if c_thr else "RandomForest")
         if tc is not None:
@@ -215,7 +215,7 @@ def page_model_compare(df: pd.DataFrame) -> None:
                               annotation_text=f"选定阈值={c_thr.get('threshold')}")
             fig.update_layout(title="阈值—指标曲线（C 同学，验证集）",
                               xaxis_title="判定阈值", yaxis_title="指标值")
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
             st.caption("来源：artifacts/threshold_comparison.csv")
         fi = ai.load_c_feature_importance(20)
         if fi is not None:
@@ -224,7 +224,7 @@ def page_model_compare(df: pd.DataFrame) -> None:
                 x="importance_or_coefficient", y="feature", orientation="h",
                 title="特征重要性 Top20（C 同学的随机森林）")
             fig.update_layout(xaxis_title="重要性", yaxis_title="特征（编码后）")
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
             st.caption("来源：artifacts/feature_importance.csv")
 
     st.divider()
@@ -315,7 +315,7 @@ def page_model_compare(df: pd.DataFrame) -> None:
     fig.update_layout(
         title=f"阈值—精确率/召回率/F1 曲线（验证集 n={len(y_valid)}）",
         xaxis_title="判定阈值", yaxis_title="指标值")
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     # 三模型对比表
     st.subheader("三模型验证集对比（阈值 0.5）")
@@ -335,7 +335,7 @@ def page_model_compare(df: pd.DataFrame) -> None:
         return [""] * len(row)
 
     st.dataframe(cmp_df.style.apply(_highlight, axis=1),
-                 use_container_width=True, hide_index=True)
+                 width="stretch", hide_index=True)
 
     # 锁定按钮
     if not is_locked:
@@ -394,7 +394,7 @@ def page_final_evaluate(df: pd.DataFrame) -> None:
             title=f"混淆矩阵（测试集 n={m_d['n_test']}，D 同学交付）",
             color_continuous_scale="Blues")
         fig.update_layout(xaxis_title="预测", yaxis_title="实际")
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         st.caption("正类=违约。测试集仅评价一次，不得反复调参后当作独立评估。")
     else:
         st.warning("未找到 artifacts/test_result.json，请向 D 同学索取测试集评价结果。")
@@ -419,7 +419,7 @@ def page_final_evaluate(df: pd.DataFrame) -> None:
                 "召回率": round(tp / max(tp + fn, 1), 6),
                 "TN/FP/FN/TP": f"{tn}/{fp}/{fn}/{tp}",
             }
-            st.dataframe(pd.DataFrame([row]), use_container_width=True, hide_index=True)
+            st.dataframe(pd.DataFrame([row]), width="stretch", hide_index=True)
             if m_d is not None:
                 same = (abs(row["ROC-AUC"] - (m_d["roc_auc"] or 0)) < 1e-6
                         and (tn, fp, fn, tp) == (m_d["TN"], m_d["FP"], m_d["FN"], m_d["TP"]))
@@ -476,7 +476,7 @@ def page_final_evaluate(df: pd.DataFrame) -> None:
         title=f"混淆矩阵（测试集 n={result['n_test']}）",
         color_continuous_scale="Blues")
     fig.update_layout(xaxis_title="预测", yaxis_title="实际")
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     # 基线对照
     st.subheader("基线（全判不违约）对照")
@@ -487,7 +487,7 @@ def page_final_evaluate(df: pd.DataFrame) -> None:
         "": "基线", "AUC": bm["roc_auc"], "精确率": bm["precision"],
         "召回率": bm["recall"], "F1": bm["f1"], "误判": bm["误判人数"], "漏判": bm["漏判人数"],
     }]
-    st.dataframe(pd.DataFrame(bl_rows), use_container_width=True, hide_index=True)
+    st.dataframe(pd.DataFrame(bl_rows), width="stretch", hide_index=True)
     if bm.get("reason"):
         st.caption(f"基线原因：{bm['reason']}")
 
@@ -606,7 +606,7 @@ def page_customer_demo(df: pd.DataFrame) -> None:
     info["还款占账单比"] = rec_feat["pay_ratio_1"].values
     info["最大逾期月数"] = rec_feat["max_delinq"].values
     info["逾期月数个数"] = rec_feat["n_delinq_months"].values
-    st.dataframe(info.T, use_container_width=True)
+    st.dataframe(info.T, width="stretch")
 
     # 事后真实标签（分区显示）
     if record[cp.SPLIT_COL] == "test":
