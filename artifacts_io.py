@@ -26,7 +26,7 @@ from pathlib import Path
 import joblib
 import pandas as pd
 
-ARTIFACTS_DIR = Path("artifacts")
+ARTIFACTS_DIR = Path(__file__).resolve().parent / "artifacts"
 
 C_BUNDLE = ARTIFACTS_DIR / "best_model.pkl"
 C_THRESHOLD = ARTIFACTS_DIR / "threshold.json"

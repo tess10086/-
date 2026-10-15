@@ -9,6 +9,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
+from pathlib import Path
 from sklearn.metrics import roc_auc_score
 
 import artifacts_io as ai
@@ -30,7 +31,13 @@ MODEL_LABELS_EN = {
 
 @st.cache_data(show_spinner=False)
 def load_cached(path: str) -> pd.DataFrame:
-    return cp.load_data(path)
+    p = Path(path)
+    if not p.exists():
+        # 部署到云端时工作目录不一定是仓库根目录，回退到 app.py 同级目录再试一次
+        alt = Path(__file__).resolve().parent / path
+        if alt.exists():
+            p = alt
+    return cp.load_data(p)
 
 
 def get_train_result(df: pd.DataFrame, exclude_sensitive: bool = False) -> dict:
